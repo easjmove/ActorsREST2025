@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ActorLib;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,18 +17,32 @@ namespace ActorsREST.Controllers
             _actorsRepository = actorsRepository;
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         // GET: api/<ActorsController>
         [HttpGet]
-        public IEnumerable<Actor> GetActors()
+        public ActionResult<IEnumerable<Actor>> GetActors()
         {
-            return _actorsRepository.GetActors();
+            IEnumerable<Actor> result = _actorsRepository.GetActors();
+            if (result.Count() > 0)
+            {
+                return Ok(result);
+            }
+            return NoContent();
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         // GET api/<ActorsController>/5
         [HttpGet("{id}")]
-        public Actor? GetById(int id)
+        public ActionResult<Actor> GetById(int id)
         {
-            return _actorsRepository.GetById(id);
+            Actor? actor = _actorsRepository.GetById(id);
+            if (actor != null)
+            {
+                return Ok(actor);
+            }
+            return NotFound();
         }
 
         // POST api/<ActorsController>
