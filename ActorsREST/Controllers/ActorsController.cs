@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ActorLib;
 using System.Collections.Generic;
+using ActorsREST.Records;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -45,25 +46,78 @@ namespace ActorsREST.Controllers
             return NotFound();
         }
 
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         // POST api/<ActorsController>
         [HttpPost]
-        public Actor Post([FromBody] Actor newActor)
+        public ActionResult<Actor> Post([FromBody] ActorRecord newActorRecord)
         {
-            return _actorsRepository.Add(newActor);
+            try
+            {
+                Actor converted = RecordHelper.ConvertActorRecord(newActorRecord);
+                Actor createdActor = _actorsRepository.Add(converted);
+                return Created("/" + createdActor.Id, createdActor);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest("Dit objekt indeholder nulls!: " + ex.Message);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BadRequest("Dit objekt er ude af en range!: " + ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest("Dit objekt er ikke gyldigt!: " + ex.Message);
+            }
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         // PUT api/<ActorsController>/5
         [HttpPut("{id}")]
-        public Actor? Put(int id, [FromBody] Actor updates)
+        public ActionResult<Actor> Put(int id, [FromBody] ActorRecord updates)
         {
-            return _actorsRepository.Update(id, updates);
+            try
+            {
+                Actor converted = RecordHelper.ConvertActorRecord(updates);
+                Actor? updated = _actorsRepository.Update(id, converted);
+                if (updated != null)
+                {
+                    return Ok(updated);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest("Dit objekt indeholder nulls!: " + ex.Message);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BadRequest("Dit objekt er ude af en range!: " + ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest("Dit objekt er ikke gyldigt!: " + ex.Message);
+            }
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         // DELETE api/<ActorsController>/5
         [HttpDelete("{id}")]
-        public Actor? Delete(int id)
+        public ActionResult<Actor> Delete(int id)
         {
-            return _actorsRepository.Delete(id);
+            Actor? deleted = _actorsRepository.Delete(id);
+            if (deleted != null)
+            {
+                return Ok(deleted);
+            }
+            return NotFound();
         }
     }
 }
