@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ActorLib">
       <HintPath>..\..\ActorLib\ActorLib\bin\Debug\net8.0\ActorLib.dll</HintPath>
     </Reference>

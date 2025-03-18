@@ -2,6 +2,7 @@
 using ActorLib;
 using System.Collections.Generic;
 using ActorsREST.Records;
+using Microsoft.AspNetCore.Cors;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,9 +23,17 @@ namespace ActorsREST.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         // GET: api/<ActorsController>
         [HttpGet]
-        public ActionResult<IEnumerable<Actor>> GetActors()
+        public ActionResult<IEnumerable<Actor>> GetActors(
+            [FromQuery] string? inputName,
+            [FromQuery] int? inputBirthYearBefore,
+            [FromQuery] int? inputBirthYearAfter,
+            [FromQuery] string? inputSortBy)
         {
-            IEnumerable<Actor> result = _actorsRepository.GetActors();
+            IEnumerable<Actor> result = _actorsRepository.GetActors(
+                name:inputName,
+                birthYearBefore:inputBirthYearBefore,
+                birthYearAfter:inputBirthYearAfter,
+                sortby:inputSortBy);
             if (result.Count() > 0)
             {
                 return Ok(result);
